@@ -2,7 +2,10 @@
  *	File: if.svh
  *	
  *	Header file with interface description
- *
+ *	Interface:
+ *		- dut_interface - common interface for clock and reset signal thought all testbench
+ *		- vm_interface 	- interface that provide driver-dut and dut-monitor communication
+ *	
 */
 
 `ifndef __DUT_IF__
@@ -42,7 +45,7 @@ interface vm_interface();
 							output 		buy;		
 							output 		product_ready;
 						);
-	
+
 	modport mon_port 	(
 							input 	product_code;
 							input 	product_valid;
@@ -51,6 +54,7 @@ interface vm_interface();
 							input 	change_valid;	
 							input 	no_change;
 						);
+	
 endinterface: vm_interface
 
 `endif //__VM_IF__
