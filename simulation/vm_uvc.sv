@@ -28,7 +28,7 @@ endclass : base_vm_transaction
 `ifndef __VM_TRANSACTION__
 `define __VM_TRANSACTION__
 
-class vm_transaction extends base_vm_transaction;
+class vm_drv_transaction extends base_vm_transaction;
 
 	rand logic [3:0] money;
 	rand logic [3:0] product_code;
@@ -47,6 +47,18 @@ class vm_transaction extends base_vm_transaction;
 
 endclass
 
+class vm_mon_transaction extends base_vm_transaction;
+
+	logic 	[20:0] 	change;
+	logic 	[ 3:0] 	product_code;
+	logic 			no_change;
+
+	function new();
+	
+	endfunction : new
+
+endclass : vm_mon_transaction
+
 `endif // __VM_TRANSACTION__
 
 `ifndef __VM_DRIVER__
@@ -55,7 +67,7 @@ endclass
 class vm_driver;
 
 	virtual dut_interface 			dut_port;
-	virtual vm_interface.drv_port	vm_drv_port;
+	virtual vm_interface.drv_port	drv_port;
 
 	mailbox #(base_vm_transaction) 	trn_mlb;
 
@@ -64,12 +76,22 @@ class vm_driver;
 	base_vm_transaction				base_trn;
 	vm_transaction 					vm_trn;
 
-	function new();
-		
+	function new(
+					virtual dut_interface 			dut_port,
+					virtual vm_interface.drv_port 	drv_port,
+				 	mailbox #(base_vm_transaction) 	trn_mlb,
+				 	semaphore 						trn_done
+				);
+
+		this.dut_port 	= 	dut_port;
+		this.drv_port 	=	drv_port;
+		this.trn_mlb 	=	trn_mlb;
+		this.trn_done 	= 	trn_done;	
 
 		fork
 			this.run_driver();
 		join_none
+
 	endfunction : new
 
 	task run_driver();
@@ -77,6 +99,21 @@ class vm_driver;
 	endtask : run_driver
 
 
-endclass : vm_uvc
+endclass : vm_driver
 
 `endif //__VM_DRIVER__
+
+`ifndef __VM_MONITOR__
+`define __VM_MONITOR__
+
+class vm_monitor;
+
+	virtual dut_interface 			dut_port;
+	virtual vm_interface.mon_port	mon_port;
+
+	function new();
+	
+	endfunction : new
+
+
+endclass : vm_monitor
