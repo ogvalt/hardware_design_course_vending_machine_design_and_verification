@@ -8,6 +8,10 @@
 
 `include "./simulation/if.svh"
 
+`include "./simulation/vm_parameter.sv"
+
+import vm_parameter::*; //  is there can be a trouble of multiple import in several file (dut_top.sv) ???
+
 `ifndef __VM_UVC_DEVICE__
 `define __VM_UVC_DEVICE__
 
@@ -30,11 +34,12 @@ endclass : base_vm_transaction
 
 class vm_drv_transaction extends base_vm_transaction;
 
-	rand logic [3:0] money;
-	rand logic [3:0] product_code;
+	rand integer 	 	money_array [1:15];					// money amount 
+	rand logic [ 3:0] 	product_code;
+	integer 		  	wait_before_trn; 	
 
-	constraint c_money_code {
-		money inside {[1:15]};
+	constraint c_money_array {
+		foreach (money_array[i]) money_array[i] inside {[0:1000]};
 	}
 
 	constraint c_product_code {
@@ -44,6 +49,30 @@ class vm_drv_transaction extends base_vm_transaction;
 	function new();
 	
 	endfunction : new
+
+	function void post_randomize();
+		integer 	sum_of_money;
+		integer 	product_price;
+
+		sum 	= 0;
+		foreach (money_array[i]) 	sum += money_array[i];
+
+		case (product_code)
+			1:	product_price = vm_parameter::PRICE_PROD_ONE  
+			2:	product_price = vm_parameter::PRICE_PROD_TWO	   
+			3:	product_price = vm_parameter::PRICE_PROD_THREE
+			4:	product_price = vm_parameter::PRICE_PROD_FOUR 
+			5:	product_price = vm_parameter::PRICE_PROD_FIVE 
+			6:	product_price = vm_parameter::PRICE_PROD_SIX  
+			7:	product_price = vm_parameter::PRICE_PROD_SEVEN
+			8:	product_price = vm_parameter::PRICE_PROD_EIGHT
+			default : product_price = 0;
+		endcase
+
+		if (sum < product_price)
+			money_array[9] = product_price; // make  
+	
+	endfunction : post_randomize
 
 endclass
 
