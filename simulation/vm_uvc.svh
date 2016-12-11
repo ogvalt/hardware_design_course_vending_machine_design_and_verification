@@ -1,5 +1,5 @@
 /*
- *	File: vm_uvc.sv
+ *	File: vm_uvc.svh
  *
  *	This file contains UVC description
  *
@@ -8,7 +8,7 @@
 
 `include "./simulation/if.svh"
 
-`include "./simulation/vm_parameter.sv"
+`include "./simulation/vm_parameter.svh"
 
 import vm_parameter::*; //  is there can be a trouble of multiple import in several file (dut_top.sv) ???
 
@@ -298,6 +298,8 @@ class vm_monitor;
 endclass : vm_monitor
 
 `endif //__VM_MONITOR__
+
+/* transactor or agent */
 
 `ifndef __VM_TRANSACTOR__
 `define __VM_TRANSACTOR__

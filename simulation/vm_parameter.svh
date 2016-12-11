@@ -1,5 +1,5 @@
 /*
- *	File: vm_parameter.sv
+ *	File: vm_parameter.svh
  *	
  *	This file contains parameter of vending machine
  *	that you can customize by you own, such as price of 

@@ -9,7 +9,7 @@
 `define __DUT_TOP__
 
 `include "./design/vending_machine.v"
-`include "./simulation/vm_parameter.sv"
+`include "./simulation/vm_parameter.svh"
 `include "./simulation/if.svh"
 
 import vm_parameter::*;
