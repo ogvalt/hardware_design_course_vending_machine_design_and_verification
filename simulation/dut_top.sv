@@ -10,11 +10,13 @@
 
 `include "./design/vending_machine.v"
 `include "./simulation/vm_parameter.sv"
+`include "./simulation/if.svh"
 
 import vm_parameter::*;
 
 module dut_top 	(
-					// add interface connection
+					dut_interface 	dut_if,
+					vm_interface 	vm_if
 				);
 
 	vending_machine #(
@@ -45,19 +47,19 @@ module dut_top 	(
 				)
 
 		vm_inst1(
-					.i_clk						(),
-					.i_rst_n					(),
-					.i_money 					(),			
-					.i_money_valid 				(), 		
-					.i_product_code 			(), 	
-					.i_buy 						(), 				
-					.i_product_ready			(),
-					.o_product_code 			(),		
-					.o_product_valid			(), 	
-					.o_busy 					(),		
-					.o_change_denomination_code (),	
-					.o_change_valid				(),				
-					.o_no_change				() 				
+					.i_clk						(dut_if.clk),
+					.i_rst_n					(dut_if.rst),
+					.i_money 					(vm_if.money),			
+					.i_money_valid 				(vm_if.money_valid), 		
+					.i_product_code 			(vm_if.product_code), 	
+					.i_buy 						(vm_if.buy), 				
+					.i_product_ready			(vm_if.product_ready),
+					.o_product_code 			(vm_if.ready_product_code),		
+					.o_product_valid			(vm_if.product_valid), 	
+					.o_busy 					(vm_if.busy),		
+					.o_change_denomination_code (vm_if.change_denomination_code),	
+					.o_change_valid				(vm_if.change_valid),				
+					.o_no_change				(vm_if.no_change) 				
 				);
 
 endmodule // dut_top

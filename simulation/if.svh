@@ -12,8 +12,8 @@
 `define __DUT_IF__
 
 interface dut_interface (
-							input clk;
-							input rst;
+							input clk,
+							input rst
 						);
 
 endinterface: dut_interface
@@ -31,28 +31,28 @@ interface vm_interface();
 	logic 			buy;		
 	logic 			product_ready;
 
-	logic 	[3:0]	o_product_code;
-	logic 			o_product_valid;
-	logic 			o_busy;			
-	logic 	[3:0]	o_change_denomination_code;
-	logic 			o_change_valid;	
-	logic 			o_no_change;
+	logic 	[3:0]	ready_product_code;
+	logic 			product_valid;
+	logic 			busy;			
+	logic 	[3:0]	change_denomination_code;
+	logic 			change_valid;	
+	logic 			no_change;
 
 	modport drv_port 	(
-							output 		money;
-							output 		money_valid;
-							output 		product_code;
-							output 		buy;		
-							output 		product_ready;
+							output 		money,
+							output 		money_valid,
+							output 		product_code,
+							output 		buy,
+							output 		product_ready
 						);
 
 	modport mon_port 	(
-							input 	product_code;
-							input 	product_valid;
-							input 	busy;			
-							input 	change_denomination_code;
-							input 	change_valid;	
-							input 	no_change;
+							input 	ready_product_code,
+							input 	product_valid,
+							input 	busy,
+							input 	change_denomination_code,
+							input 	change_valid,
+							input 	no_change
 						);
 	
 endinterface: vm_interface
