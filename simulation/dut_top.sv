@@ -15,8 +15,9 @@
 import vm_parameter::*;
 
 module dut_top 	(
-					dut_interface 	dut_if,
-					vm_interface 	vm_if
+					dut_interface 		dut_if,
+					vm_in_interface 	vm_in_if,
+					vm_out_interface 	vm_out_if
 				);
 
 	vending_machine #(
@@ -49,17 +50,19 @@ module dut_top 	(
 		vm_inst1(
 					.i_clk						(dut_if.clk),
 					.i_rst_n					(dut_if.rst),
-					.i_money 					(vm_if.money),			
-					.i_money_valid 				(vm_if.money_valid), 		
-					.i_product_code 			(vm_if.product_code), 	
-					.i_buy 						(vm_if.buy), 				
-					.i_product_ready			(vm_if.product_ready),
-					.o_product_code 			(vm_if.ready_product_code),		
-					.o_product_valid			(vm_if.product_valid), 	
-					.o_busy 					(vm_if.busy),		
-					.o_change_denomination_code (vm_if.change_denomination_code),	
-					.o_change_valid				(vm_if.change_valid),				
-					.o_no_change				(vm_if.no_change) 				
+
+					.i_money 					(vm_in_if.money),			
+					.i_money_valid 				(vm_in_if.money_valid), 		
+					.i_product_code 			(vm_in_if.product_code), 	
+					.i_buy 						(vm_in_if.buy), 				
+					.i_product_ready			(vm_in_if.product_ready),
+
+					.o_product_code 			(vm_out_if.ready_product_code),		
+					.o_product_valid			(vm_out_if.product_valid), 	
+					.o_busy 					(vm_out_if.busy),		
+					.o_change_denomination_code (vm_out_if.change_denomination_code),	
+					.o_change_valid				(vm_out_if.change_valid),				
+					.o_no_change				(vm_out_if.no_change) 				
 				);
 
 endmodule // dut_top

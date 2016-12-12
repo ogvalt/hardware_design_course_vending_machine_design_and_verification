@@ -149,21 +149,21 @@ endclass : vm_mon_transaction
 
 class vm_driver;
 
-	virtual dut_interface 			dut_port;
-	virtual vm_interface.drv_port	drv_port;
+	virtual dut_interface 				dut_port;
+	virtual vm_in_interface.drv_port	drv_port;
 
-	mailbox #(base_vm_transaction) 	trn_mlb;
+	mailbox #(base_vm_transaction) 		trn_mlb;
 
-	semaphore 						trn_done;
+	semaphore 							trn_done;
 
-	base_vm_transaction				base_trn;
-	vm_drv_transaction				vm_trn;
+	base_vm_transaction					base_trn;
+	vm_drv_transaction					vm_trn;
 
 	function new(
-					virtual dut_interface 			dut_port,
-					virtual vm_interface.drv_port 	drv_port,
-				 	mailbox #(base_vm_transaction) 	trn_mlb,
-				 	semaphore 						trn_done
+					virtual dut_interface 				dut_port,
+					virtual vm_in_interface.drv_port 	drv_port,
+				 	mailbox #(base_vm_transaction) 		trn_mlb,
+				 	semaphore 							trn_done
 				);
 
 		this.dut_port 	= 	dut_port;
@@ -236,17 +236,17 @@ endclass : vm_driver
 
 class vm_monitor;
 
-	virtual dut_interface 			dut_port;
-	virtual vm_interface.mon_port	mon_port;
+	virtual dut_interface 				dut_port;
+	virtual vm_out_interface.mon_port	mon_port;
 
 	mailbox #(base_vm_transaction) 	trn_mlb;
 
 	vm_mon_transaction 				vm_trn;
 
 	function new(
-					virtual dut_interface 			dut_port,
-					virtual vm_interface.mon_port	mon_port,
-					mailbox #(base_vm_transaction) 	trn_mlb
+					virtual dut_interface 				dut_port,
+					virtual vm_out_interface.mon_port	mon_port,
+					mailbox #(base_vm_transaction) 		trn_mlb
 				);
 
 		this.dut_port 	= 	dut_port;
@@ -307,7 +307,7 @@ endclass : vm_monitor
 class vm_transactor;
 
 	virtual dut_interface			dut_if;
-	virtual vm_interface 			vm_if;
+	virtual vm_in_interface 		vm_if;
 
 	mailbox	#(base_vm_transaction) 	trn_mlb;
 
@@ -317,7 +317,7 @@ class vm_transactor;
 
 	function new(
 					virtual dut_interface 	dut_if,
-					virtual vm_interface 	vm_if
+					virtual vm_in_interface vm_if
 				);
 
 		this.dut_if 	=	dut_if;
