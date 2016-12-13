@@ -231,10 +231,71 @@ endclass : vm_driver
 
 `endif //__VM_DRIVER__
 
-`ifndef __VM_MONITOR__
-`define __VM_MONITOR__
+`ifndef __VM_IN_MONITOR__
+`define __VM_IN_MONITOR__
 
-class vm_monitor;
+class vm_in_monitor;
+
+	virtual dut_interface 				dut_port;
+	virtual vm_in_interface.mon_port	mon_port;
+
+	mailbox #(base_vm_transaction) 	trn_mlb;
+
+	vm_mon_transaction 				vm_trn;
+
+	function new(
+					virtual dut_interface 				dut_port,
+					virtual vm_in_interface.mon_port	mon_port,
+					mailbox #(base_vm_transaction) 		trn_mlb
+				);
+
+		this.dut_port 	= 	dut_port;
+		this.mon_port 	= 	mon_port;
+		this.trn_mlb 	= 	trn_mlb;
+
+		fork
+			this.run_monitor();
+		join_none
+	endfunction : new
+
+	task run_monitor();
+		fork
+			transaction_processing();
+		join_none
+	endtask : run_monitor
+
+	task transaction_processing();
+		
+		forever begin
+
+			@(posedge mon_port.buy);
+			vm_trn.product_code = mon_port.product_code;
+
+			@(posedge mon_port.money_valid);
+			while (mon_port.money_valid) begin
+				@(posedge dut.clk);
+				vm_trn.money_sequence = {vm_trn.money_sequence, mon_port.money};
+			end
+			@(posedge mon_port.proruct_ready);
+
+			vm_trn.at_time 		= $time();
+
+			vm_trn.sequence_to_change();
+
+			$display("[%t][VM_MONITOR][INFO] IN Monitor get transaction. Product_code [%d]",$time(),vm_trn.product_code);
+			trn_mlb.put(vm_trn);
+		end
+	endtask : transaction_processing
+
+
+endclass : vm_in_monitor
+
+`endif //__VM_IN_MONITOR__
+
+`ifndef __VM_OUT_MONITOR__
+`define __VM_OUT_MONITOR__
+
+class vm_out_monitor;
 
 	virtual dut_interface 				dut_port;
 	virtual vm_out_interface.mon_port	mon_port;
@@ -295,9 +356,9 @@ class vm_monitor;
 	endtask : transaction_processing
 
 
-endclass : vm_monitor
+endclass : vm_out_monitor
 
-`endif //__VM_MONITOR__
+`endif //__VM_OUT_MONITOR__
 
 /* transactor or agent */
 
@@ -348,46 +409,6 @@ class vm_transactor;
 			$display("[%t][VM_TRN][ERR] Something go wrong with randomize()",$time());
 		end
 	endtask : vm_random_trn
-
-	task vm_random_money_sq(logic [3:0] code);
-		
-		$display("[%t][VM_TRN][INFO] VM Transaction with random money sequence",$time());
-
-		trn = new();
-
-		assert (trn.randomize() with {
-			this.product_code == code;
-		});
-
-		trn_mlb.put(trn); 	// send transaction to driver
-		trn_done.get();		// wait until driver done
-
-		$write("[%t][VM_TRN][INFO] VM Transaction has been sent. Product_code[%d]. Money sequence: ", $time(), trn.product_code);
-		foreach (trn.money_sequence[i]) begin
-			$write("%d ", trn.money_sequence[i]);
-		end
-		$write("\n");
-	endtask : vm_random_money_sq
-
-	task vm_random_product(int seq[]);
-
-		$display("[%t][VM_TRN][INFO] VM Transaction with random product",$time());
-
-		trn = new();
-
-		assert(trn.randomize() with {
-			this.money_sequence == seq;
-		});
-		
-		trn_mlb.put(trn); 	// send transaction to driver
-		trn_done.get();		// wait until driver done
-
-		$write("[%t][VM_TRN][INFO] VM Transaction has been sent. Product_code[%d]. Money sequence: ", $time(), trn.product_code);
-		foreach (trn.money_sequence[i]) begin
-			$write("%d ", trn.money_sequence[i]);
-		end
-		$write("\n");
-	endtask : vm_random_product
 
 	task vm_non_randon_trn(	int seq[],	logic [3:0] code);
 
