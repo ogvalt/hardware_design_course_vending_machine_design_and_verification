@@ -12,10 +12,10 @@
 `ifndef __DUT_IF__
 `define __DUT_IF__
 
-interface dut_interface (
-							input clk,
-							input rst
-						);
+interface dut_interface();
+
+	logic 		clk;
+	logic 		rst;
 
 endinterface: dut_interface
 

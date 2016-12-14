@@ -56,7 +56,6 @@ class vm_drv_transaction extends base_vm_transaction;
 	}
 
 	function new();
-	
 	endfunction : new
 
 	function void post_randomize();
@@ -107,35 +106,34 @@ endclass : vm_drv_transaction
 
 class vm_mon_transaction extends base_vm_transaction;
 
-	logic 	[20:0] 	change;
+	int 			money;
 	integer			money_sequence[$:100];
 	logic 	[ 3:0] 	product_code;
 	logic 			no_change;
 	time 			at_time;
 
 	function new();
-		money_sequence = {};
 	endfunction : new
 
 	function void sequence_to_change();
-		change = 0;
+		money = 0;
 		foreach (money_sequence[i]) begin
 			case (money_sequence[i])
-				vm_parameter::DENOMINATION_CODE_500	: 	change +=	vm_parameter::DENOMINATION_VALUE_500;	 
-			 	vm_parameter::DENOMINATION_CODE_200	:	change +=	vm_parameter::DENOMINATION_VALUE_200;
-			   	vm_parameter::DENOMINATION_CODE_100	:	change +=	vm_parameter::DENOMINATION_VALUE_100;
-			   	vm_parameter::DENOMINATION_CODE_50  :	change +=	vm_parameter::DENOMINATION_VALUE_50;
-			   	vm_parameter::DENOMINATION_CODE_20  :	change +=	vm_parameter::DENOMINATION_VALUE_20;
-			   	vm_parameter::DENOMINATION_CODE_10  :	change +=	vm_parameter::DENOMINATION_VALUE_10;
-			   	vm_parameter::DENOMINATION_CODE_5   :	change +=	vm_parameter::DENOMINATION_VALUE_5;
-			   	vm_parameter::DENOMINATION_CODE_2   :	change +=	vm_parameter::DENOMINATION_VALUE_2;
-			   	vm_parameter::DENOMINATION_CODE_1   :	change +=	vm_parameter::DENOMINATION_VALUE_1;
-			   	vm_parameter::DENOMINATION_CODE0_50 :	change +=	vm_parameter::DENOMINATION_VALUE_0_50;
-			   	vm_parameter::DENOMINATION_CODE0_25 :	change +=	vm_parameter::DENOMINATION_VALUE_0_25;	
-			   	vm_parameter::DENOMINATION_CODE0_10 :	change +=	vm_parameter::DENOMINATION_VALUE_0_10;
-			   	vm_parameter::DENOMINATION_CODE0_05 :	change +=	vm_parameter::DENOMINATION_VALUE_0_05;
-			   	vm_parameter::DENOMINATION_CODE0_02 :	change +=	vm_parameter::DENOMINATION_VALUE_0_02;
-			   	vm_parameter::DENOMINATION_CODE0_01 :	change +=	vm_parameter::DENOMINATION_VALUE_0_01;
+				vm_parameter::DENOMINATION_CODE_500	: 	money +=	vm_parameter::DENOMINATION_VALUE_500;	 
+			 	vm_parameter::DENOMINATION_CODE_200	:	money +=	vm_parameter::DENOMINATION_VALUE_200;
+			   	vm_parameter::DENOMINATION_CODE_100	:	money +=	vm_parameter::DENOMINATION_VALUE_100;
+			   	vm_parameter::DENOMINATION_CODE_50  :	money +=	vm_parameter::DENOMINATION_VALUE_50;
+			   	vm_parameter::DENOMINATION_CODE_20  :	money +=	vm_parameter::DENOMINATION_VALUE_20;
+			   	vm_parameter::DENOMINATION_CODE_10  :	money +=	vm_parameter::DENOMINATION_VALUE_10;
+			   	vm_parameter::DENOMINATION_CODE_5   :	money +=	vm_parameter::DENOMINATION_VALUE_5;
+			   	vm_parameter::DENOMINATION_CODE_2   :	money +=	vm_parameter::DENOMINATION_VALUE_2;
+			   	vm_parameter::DENOMINATION_CODE_1   :	money +=	vm_parameter::DENOMINATION_VALUE_1;
+			   	vm_parameter::DENOMINATION_CODE0_50 :	money +=	vm_parameter::DENOMINATION_VALUE_0_50;
+			   	vm_parameter::DENOMINATION_CODE0_25 :	money +=	vm_parameter::DENOMINATION_VALUE_0_25;	
+			   	vm_parameter::DENOMINATION_CODE0_10 :	money +=	vm_parameter::DENOMINATION_VALUE_0_10;
+			   	vm_parameter::DENOMINATION_CODE0_05 :	money +=	vm_parameter::DENOMINATION_VALUE_0_05;
+			   	vm_parameter::DENOMINATION_CODE0_02 :	money +=	vm_parameter::DENOMINATION_VALUE_0_02;
+			   	vm_parameter::DENOMINATION_CODE0_01 :	money +=	vm_parameter::DENOMINATION_VALUE_0_01;
 			endcase
 		end
 	endfunction : sequence_to_change
@@ -149,7 +147,7 @@ endclass : vm_mon_transaction
 
 class vm_driver;
 
-	virtual dut_interface 				dut_port;
+	virtual dut_interface 				dut_if;
 	virtual vm_in_interface.drv_port	drv_port;
 
 	mailbox #(base_vm_transaction) 		trn_mlb;
@@ -160,13 +158,13 @@ class vm_driver;
 	vm_drv_transaction					vm_trn;
 
 	function new(
-					virtual dut_interface 				dut_port,
+					virtual dut_interface 				dut_if,
 					virtual vm_in_interface.drv_port 	drv_port,
 				 	mailbox #(base_vm_transaction) 		trn_mlb,
 				 	semaphore 							trn_done
 				);
 
-		this.dut_port 	= 	dut_port;
+		this.dut_if 	= 	dut_if;
 		this.drv_port 	=	drv_port;
 		this.trn_mlb 	=	trn_mlb;
 		this.trn_done 	= 	trn_done;	
@@ -205,24 +203,25 @@ class vm_driver;
 		drv_port.product_code 	= 	vm_trn.product_code;
 		drv_port.buy 			=	1'b1;
 
-		@(negedge dut_port.clk);
+		@(negedge dut_if.clk);
 
 		drv_port.buy 			= 	1'b0;
 
 		foreach (vm_trn.money_sequence[i]) begin
-			@(negedge dut_port.clk);
+			@(negedge dut_if.clk);
 			drv_port.money 			= vm_trn.money_sequence[i];
 			drv_port.money_valid	= 1'b1;
 		end
 
-		@(negedge dut_port.clk);
+		@(negedge dut_if.clk);
 		drv_port.money_valid 	= 1'b0;
 		drv_port.product_ready	= 1'b1;
-		@(negedge dut_port.clk);
+		@(negedge dut_if.clk);
 		drv_port.product_ready 	= 1'b0;
 
-		repeat(vm_trn.wait_before_trn_ends)
-			@(negedge dut_port.clk);
+		// repeat(vm_trn.wait_before_trn_ends)!!!!!!!!!!!!
+		repeat(100)
+			@(negedge dut_if.clk);
 		
 	endtask : drive_trn
 
@@ -236,7 +235,7 @@ endclass : vm_driver
 
 class vm_in_monitor;
 
-	virtual dut_interface 				dut_port;
+	virtual dut_interface 				dut_if;
 	virtual vm_in_interface.mon_port	mon_port;
 
 	mailbox #(base_vm_transaction) 	trn_mlb;
@@ -244,12 +243,12 @@ class vm_in_monitor;
 	vm_mon_transaction 				vm_trn;
 
 	function new(
-					virtual dut_interface 				dut_port,
+					virtual dut_interface 				dut_if,
 					virtual vm_in_interface.mon_port	mon_port,
 					mailbox #(base_vm_transaction) 		trn_mlb
 				);
 
-		this.dut_port 	= 	dut_port;
+		this.dut_if 	= 	dut_if;
 		this.mon_port 	= 	mon_port;
 		this.trn_mlb 	= 	trn_mlb;
 
@@ -267,16 +266,16 @@ class vm_in_monitor;
 	task transaction_processing();
 		
 		forever begin
-
+			vm_trn 	=	new();
 			@(posedge mon_port.buy);
 			vm_trn.product_code = mon_port.product_code;
 
 			@(posedge mon_port.money_valid);
 			while (mon_port.money_valid) begin
-				@(posedge dut.clk);
+				@(posedge dut_if.clk);
 				vm_trn.money_sequence = {vm_trn.money_sequence, mon_port.money};
 			end
-			@(posedge mon_port.proruct_ready);
+			@(posedge mon_port.product_ready);
 
 			vm_trn.at_time 		= $time();
 
@@ -297,7 +296,7 @@ endclass : vm_in_monitor
 
 class vm_out_monitor;
 
-	virtual dut_interface 				dut_port;
+	virtual dut_interface 				dut_if;
 	virtual vm_out_interface.mon_port	mon_port;
 
 	mailbox #(base_vm_transaction) 	trn_mlb;
@@ -305,12 +304,12 @@ class vm_out_monitor;
 	vm_mon_transaction 				vm_trn;
 
 	function new(
-					virtual dut_interface 				dut_port,
+					virtual dut_interface 				dut_if,
 					virtual vm_out_interface.mon_port	mon_port,
 					mailbox #(base_vm_transaction) 		trn_mlb
 				);
 
-		this.dut_port 	= 	dut_port;
+		this.dut_if 	= 	dut_if;
 		this.mon_port 	= 	mon_port;
 		this.trn_mlb 	= 	trn_mlb;
 
@@ -328,21 +327,21 @@ class vm_out_monitor;
 	task transaction_processing();
 		
 		forever begin
-
+			vm_trn 		=	 new();
 			@(posedge mon_port.product_valid);
-			@(negedge dut_port.clk);
+			@(negedge dut_if.clk);
 
 			vm_trn.product_code = mon_port.ready_product_code;
 
 			@(posedge mon_port.change_valid);
-			@(negedge dut_port.clk);
+			@(negedge dut_if.clk);
 
 			if (mon_port.no_change === 1'b1) begin
 				vm_trn.no_change 	= 1'b1;
 			end else begin
 				while(mon_port.change_valid===1'b1 & mon_port.no_change!==1'b1) begin
 					vm_trn.money_sequence = {vm_trn.money_sequence, mon_port.change_denomination_code};
-					@(negedge dut_port.clk);
+					@(negedge dut_if.clk);
 				end
 				vm_trn.no_change 	= mon_port.no_change ? 1'b1 : 1'b0;
 			end
@@ -367,8 +366,8 @@ endclass : vm_out_monitor
 
 class vm_transactor;
 
-	virtual dut_interface			dut_if;
-	virtual vm_in_interface 		vm_if;
+	virtual dut_interface					dut_if;
+	virtual vm_in_interface.drv_port 		vm_in_drv_port;
 
 	mailbox	#(base_vm_transaction) 	trn_mlb;
 
@@ -381,13 +380,13 @@ class vm_transactor;
 					virtual vm_in_interface vm_if
 				);
 
-		this.dut_if 	=	dut_if;
-		this.vm_if 		= 	vm_if;
+		this.dut_if 			=	dut_if;
+		this.vm_in_drv_port 	= 	vm_if.drv_port;
 
 		trn_mlb 		= 	new();
 		trn_done 		=	new();
 
-		vm_drv 			= 	new(dut_if,	vm_if.drv_port,	trn_mlb, trn_done);
+		vm_drv 			= 	new(dut_if,	vm_in_drv_port,	trn_mlb, trn_done);
 	
 	endfunction : new
 
@@ -417,8 +416,10 @@ class vm_transactor;
 		trn = new();
 
 		assert(trn.randomize() with {
-			this.money_sequence == seq;
-			this.product_code 	== code;
+			this.money_sequence.size 	==	seq.size();
+			foreach (this.money_sequence[i])
+				this.money_sequence[i] 		== 	seq[i];
+			this.product_code 			== 	code;
 		});
 		
 		trn_mlb.put(trn); 	// send transaction to driver

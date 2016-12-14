@@ -35,7 +35,7 @@ class sequencer;
 
 	task send_product_without_change(int i);
 		int 	product_price;
-		int 	money_sequence[$:100] = {};
+		int 	money_sequence[$:100];
 
 		case(i)
 			1:	product_price = vm_parameter::PRICE_PROD_ONE;
@@ -53,42 +53,52 @@ class sequencer;
 				(product_price - vm_parameter::DENOMINATION_VALUE_10 >=0):
 					begin
 						money_sequence = {money_sequence, vm_parameter::DENOMINATION_CODE_10};
+						product_price  = product_price - vm_parameter::DENOMINATION_VALUE_10;
 					end
 				(product_price - vm_parameter::DENOMINATION_VALUE_5 >=0):
 					begin
 						money_sequence = {money_sequence, vm_parameter::DENOMINATION_CODE_5};
+						product_price  = product_price - vm_parameter::DENOMINATION_VALUE_5;
 					end
 				(product_price - vm_parameter::DENOMINATION_VALUE_2 >=0):
 					begin
 						money_sequence = {money_sequence, vm_parameter::DENOMINATION_CODE_2};
+						product_price  = product_price - vm_parameter::DENOMINATION_VALUE_2;
 					end
 				(product_price - vm_parameter::DENOMINATION_VALUE_1 >=0):
 					begin
 						money_sequence = {money_sequence, vm_parameter::DENOMINATION_CODE_1};
+						product_price  = product_price - vm_parameter::DENOMINATION_VALUE_1;
 					end
 				(product_price - vm_parameter::DENOMINATION_VALUE_0_50 >=0):
 					begin
 						money_sequence = {money_sequence, vm_parameter::DENOMINATION_CODE0_50};
+						product_price  = product_price - vm_parameter::DENOMINATION_VALUE_0_50;
 					end
 				(product_price - vm_parameter::DENOMINATION_VALUE_0_25 >=0):
 					begin
 						money_sequence = {money_sequence, vm_parameter::DENOMINATION_CODE0_25};
+						product_price  = product_price - vm_parameter::DENOMINATION_VALUE_0_25;
 					end
 				(product_price - vm_parameter::DENOMINATION_VALUE_0_10 >=0):
 					begin
 						money_sequence = {money_sequence, vm_parameter::DENOMINATION_CODE0_10};
+						product_price  = product_price - vm_parameter::DENOMINATION_VALUE_0_10;
 					end
 				(product_price - vm_parameter::DENOMINATION_VALUE_0_05 >=0):
 					begin
 						money_sequence = {money_sequence, vm_parameter::DENOMINATION_CODE0_05};
+						product_price  = product_price - vm_parameter::DENOMINATION_VALUE_0_05;
 					end
 				(product_price - vm_parameter::DENOMINATION_VALUE_0_02 >=0):
 					begin
 						money_sequence = {money_sequence, vm_parameter::DENOMINATION_CODE0_02};
+						product_price  = product_price - vm_parameter::DENOMINATION_VALUE_0_02;
 					end
 				(product_price - vm_parameter::DENOMINATION_VALUE_0_01 >=0):
 					begin
 						money_sequence = {money_sequence, vm_parameter::DENOMINATION_CODE0_01};
+						product_price  = product_price - vm_parameter::DENOMINATION_VALUE_0_01;
 					end
 			endcase
 		end

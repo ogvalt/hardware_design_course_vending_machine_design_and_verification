@@ -8,9 +8,11 @@
 `ifndef	__DUT_TOP__
 `define __DUT_TOP__
 
-`include "./design/vending_machine.v"
+`include "./design/vending_machine.sv"
 `include "./simulation/vm_parameter.svh"
 `include "./simulation/if.svh"
+
+`define CLOCK_PERIOD 2
 
 import vm_parameter::*;
 
@@ -64,6 +66,20 @@ module dut_top 	(
 					.o_change_valid				(vm_out_if.change_valid),				
 					.o_no_change				(vm_out_if.no_change) 				
 				);
+
+
+		initial begin
+			dut_if.rst = 0;
+			#40;
+			dut_if.rst = 1;
+		end
+
+		initial begin
+			dut_if.clk = 0;
+			@(posedge dut_if.rst);
+			#20;
+			forever #(`CLOCK_PERIOD) dut_if.clk = ~dut_if.clk;
+		end
 
 endmodule // dut_top
 
