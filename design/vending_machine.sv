@@ -390,10 +390,10 @@ always @(posedge i_clk or negedge i_rst_n) begin : fsm_output_logic_block
 							end
 						default: 
 							begin
-								if(change!=0) begin
+								// if(change!=0) begin
 									o_change_valid 	<= 	1;
 									o_no_change 	<=	1;
-								end
+								// end
 							end
 					endcase // 1'b1
 				end

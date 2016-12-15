@@ -9,7 +9,13 @@
 `define __CHECKER_COMMON__
 
 class checkr_comm;
-  static int unsigned err_cnt;
+  static int unsigned err_cnt;		// total number of error
+  static int unsigned err_change;	// change errors conter
+  static int unsigned err_product;	// product errors conter
+
+  static int unsigned pass_cnt;		// total passed checks
+  static int unsigned pass_change;	// passed change checks
+  static int unsigned pass_product; // passed product ckecks
 endclass : checkr_comm
 
 `endif // __CHECKER_COMMON__
@@ -105,10 +111,21 @@ class vm_checker;
 							real_change = vm_in_trn.money - product_price;
 							$display("[%t][CHKR][ERR] Change does not match: Exp[%2d], Got[%2d]",$time(), real_change, vm_out_trn.money);
 							checkr_comm::err_cnt++;
+							checkr_comm::err_change++;
+						end else 
+						begin
+							$display("[%t][CHCK][INFO] Change match. OK",$time());
+							checkr_comm::pass_cnt++;
+							checkr_comm::pass_change++;
 						end
-					end else begin
-						$display("[%t][CHCK][ERR] Product code does not match: Ext[%2d]",vm_in_trn.product_code, vm_out_trn.product_code);
+						$display("[%t][CHCK][INFO] Product match. OK",$time());
+						checkr_comm::pass_cnt++;
+						checkr_comm::pass_product++;
+					end else 
+					begin
+						$display("[%t][CHCK][ERR] Product code does not match: Ext[%2d], Got[%2d]",$time(), vm_in_trn.product_code, vm_out_trn.product_code);
 						checkr_comm::err_cnt++;
+						checkr_comm::err_product++;
 					end
 				end
 			end

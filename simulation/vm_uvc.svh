@@ -41,7 +41,10 @@ class vm_drv_transaction extends base_vm_transaction;
 
 	*/
 	rand logic [ 3:0] 	product_code;
+
+	integer 			product_price;
 	integer 		  	wait_before_trn_ends; 	
+	integer 			seq_limit;
 
 	constraint c_money_sequence_len {
 		money_sequence.size inside {[1:100]};
@@ -60,7 +63,6 @@ class vm_drv_transaction extends base_vm_transaction;
 
 	function void post_randomize();
 		integer 	sum;
-		integer 	product_price;
 
 		sum 	= 0;
 		foreach (money_sequence[i]) begin
@@ -102,12 +104,38 @@ class vm_drv_transaction extends base_vm_transaction;
 	
 	endfunction : post_randomize
 
+	task seq_limit_calc();
+		integer sum = 0;
+		integer it = 0;
+		while (sum < product_price) begin
+			case (money_sequence[it])
+				vm_parameter::DENOMINATION_CODE_500	: 	sum +=	vm_parameter::DENOMINATION_VALUE_500;	 
+			 	vm_parameter::DENOMINATION_CODE_200	:	sum +=	vm_parameter::DENOMINATION_VALUE_200;
+			   	vm_parameter::DENOMINATION_CODE_100	:	sum +=	vm_parameter::DENOMINATION_VALUE_100;
+			   	vm_parameter::DENOMINATION_CODE_50  :	sum +=	vm_parameter::DENOMINATION_VALUE_50;
+			   	vm_parameter::DENOMINATION_CODE_20  :	sum +=	vm_parameter::DENOMINATION_VALUE_20;
+			   	vm_parameter::DENOMINATION_CODE_10  :	sum +=	vm_parameter::DENOMINATION_VALUE_10;
+			   	vm_parameter::DENOMINATION_CODE_5   :	sum +=	vm_parameter::DENOMINATION_VALUE_5;
+			   	vm_parameter::DENOMINATION_CODE_2   :	sum +=	vm_parameter::DENOMINATION_VALUE_2;
+			   	vm_parameter::DENOMINATION_CODE_1   :	sum +=	vm_parameter::DENOMINATION_VALUE_1;
+			   	vm_parameter::DENOMINATION_CODE0_50 :	sum +=	vm_parameter::DENOMINATION_VALUE_0_50;
+			   	vm_parameter::DENOMINATION_CODE0_25 :	sum +=	vm_parameter::DENOMINATION_VALUE_0_25;	
+			   	vm_parameter::DENOMINATION_CODE0_10 :	sum +=	vm_parameter::DENOMINATION_VALUE_0_10;
+			   	vm_parameter::DENOMINATION_CODE0_05 :	sum +=	vm_parameter::DENOMINATION_VALUE_0_05;
+			   	vm_parameter::DENOMINATION_CODE0_02 :	sum +=	vm_parameter::DENOMINATION_VALUE_0_02;
+			   	vm_parameter::DENOMINATION_CODE0_01 :	sum +=	vm_parameter::DENOMINATION_VALUE_0_01;
+			endcase
+			it++;
+		end
+		seq_limit = it;
+	endtask : seq_limit_calc
+
 endclass : vm_drv_transaction
 
 class vm_mon_transaction extends base_vm_transaction;
 
 	int 			money;
-	integer			money_sequence[$:100];
+	integer			money_sequence[];
 	logic 	[ 3:0] 	product_code;
 	logic 			no_change;
 	time 			at_time;
@@ -189,17 +217,20 @@ class vm_driver;
 
 			if($cast(vm_trn, base_trn)) begin
 				drive_trn(vm_trn);
+				trn_done.put();
+				$display("[%t][VM_DRIVER][INFO] Transaction sent by Driver",$time());
 			end
 			else begin
 				$display("[%t][VM_DRIVER][ERR] Unknown transaction in Driver. TypeName: %s",$time, $typename(vm_trn));
+				$finish;
 			end
 
-			trn_done.put();
+			// trn_done.put();
 		end
 	endtask : run_driver
 
 	task drive_trn (vm_drv_transaction vm_trn);
-
+		integer i = 0;
 		drv_port.product_code 	= 	vm_trn.product_code;
 		drv_port.buy 			=	1'b1;
 
@@ -207,14 +238,14 @@ class vm_driver;
 
 		drv_port.buy 			= 	1'b0;
 
-		foreach (vm_trn.money_sequence[i]) begin
+		repeat (vm_trn.seq_limit) begin
 			@(negedge dut_if.clk);
-			drv_port.money 			= vm_trn.money_sequence[i];
+			drv_port.money 			= vm_trn.money_sequence[i++];
 			drv_port.money_valid	= 1'b1;
 		end
-
 		@(negedge dut_if.clk);
 		drv_port.money_valid 	= 1'b0;
+		@(negedge dut_if.clk);
 		drv_port.product_ready	= 1'b1;
 		@(negedge dut_if.clk);
 		drv_port.product_ready 	= 1'b0;
@@ -272,8 +303,8 @@ class vm_in_monitor;
 
 			@(posedge mon_port.money_valid);
 			while (mon_port.money_valid) begin
-				@(posedge dut_if.clk);
 				vm_trn.money_sequence = {vm_trn.money_sequence, mon_port.money};
+				@(negedge dut_if.clk);
 			end
 			@(posedge mon_port.product_ready);
 
@@ -349,7 +380,7 @@ class vm_out_monitor;
 
 			vm_trn.sequence_to_change();
 
-			$display("[%t][VM_MONITOR][INFO] Monitor get transaction. Product_code [%d]",$time(),vm_trn.product_code);
+			$display("[%t][VM_MONITOR][INFO] OUT Monitor get transaction. Product_code [%d]",$time(),vm_trn.product_code);
 			trn_mlb.put(vm_trn);
 		end
 	endtask : transaction_processing
@@ -395,14 +426,16 @@ class vm_transactor;
 		$display("[%t][VM_TRN][INFO] VM Random Transaction",$time());
 
 		trn = new();
+
 		if (trn.randomize() == 1) begin
+			trn.seq_limit_calc();
 			trn_mlb.put(trn); 	// send transaction to driver
 			trn_done.get();		// wait until driver done
 
 			$write("[%t][VM_TRN][INFO] VM Transaction has been sent. Product_code[%d]. Money sequence: ", $time(), trn.product_code);
-			foreach (trn.money_sequence[i]) begin
-				$write("%d ", trn.money_sequence[i]);
-			end
+			// foreach (trn.money_sequence[i]) begin
+			// 	$write("%d ", trn.money_sequence[i]);
+			// end
 			$write("\n");
 		end else begin
 			$display("[%t][VM_TRN][ERR] Something go wrong with randomize()",$time());
@@ -421,14 +454,14 @@ class vm_transactor;
 				this.money_sequence[i] 		== 	seq[i];
 			this.product_code 			== 	code;
 		});
-		
+		trn.seq_limit_calc();
 		trn_mlb.put(trn); 	// send transaction to driver
 		trn_done.get();		// wait until driver done
 
 		$write("[%t][VM_TRN][INFO] VM Transaction has been sent. Product_code[%d]. Money sequence: ", $time(), trn.product_code);
-		foreach (trn.money_sequence[i]) begin
-			$write("%d ", trn.money_sequence[i]);
-		end
+		// foreach (trn.money_sequence[i]) begin
+		// 	$write("%d ", trn.money_sequence[i]);
+		// end
 		$write("\n");
 	endtask : vm_non_randon_trn
 

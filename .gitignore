@@ -3,3 +3,4 @@ vm_verification.cr.mti
 vm_verification.mpf
 transcript
 dump.vcd
+vsim.wlf

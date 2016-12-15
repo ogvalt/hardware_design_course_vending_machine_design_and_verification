@@ -85,8 +85,15 @@ class scoreboard;
 	endfunction : new
 
 	function void report_final_status();
-		$display("=======================================================\nFINAL REPORT\n\terr_cnt = %-d\n\t%s\n\tTotal Coverage : %.1f%%", 
-             checkr_comm::err_cnt, (checkr_comm::err_cnt)?("FAIL"):("PASS"), $get_coverage());
+		
+		$display("=======================================================\nFINAL REPORT");
+		$display("\terr_cnt = %-d\n\terr_change = %-d\n\terr_product = %-d", 
+					checkr_comm::err_cnt, checkr_comm::err_change, checkr_comm::err_product);
+		$display("\tpass_cnt = %-d\n\tpass_change = %-d\n\tpass_product = %-d", 
+					checkr_comm::pass_cnt, checkr_comm::pass_change, checkr_comm::pass_product);
+		$display("\t%s\n\tTotal Coverage : %.1f%%", 			
+             		(checkr_comm::err_cnt)?("FAIL"):("PASS"), $get_coverage());
+
 	endfunction : report_final_status 
 
 endclass : scoreboard
