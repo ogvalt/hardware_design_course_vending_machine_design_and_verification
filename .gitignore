@@ -4,3 +4,4 @@ vm_verification.mpf
 transcript
 dump.vcd
 vsim.wlf
+script.ps1
