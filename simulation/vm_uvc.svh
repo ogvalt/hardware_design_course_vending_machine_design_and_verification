@@ -5,15 +5,41 @@
  *
  *
 */
-
-`include "./simulation/if.svh"
-
 `include "./simulation/vm_parameter.svh"
 
-import vm_parameter::*; //  is there can be a trouble of multiple import in several file (dut_top.sv) ???
+import vm_parameter::*;
+
+`ifndef __COMMON__
+`define __COMMON__
+
+class common;
+
+	static int unsigned amount_500	=	vm_parameter::DENOMINATION_AMOUNT_500;
+	static int unsigned amount_200	=	vm_parameter::DENOMINATION_AMOUNT_200;
+	static int unsigned amount_100	=	vm_parameter::DENOMINATION_AMOUNT_100;
+	static int unsigned amount_50 	=	vm_parameter::DENOMINATION_AMOUNT_50;
+	static int unsigned amount_20 	=	vm_parameter::DENOMINATION_AMOUNT_20;
+	static int unsigned amount_10 	=	vm_parameter::DENOMINATION_AMOUNT_10;
+	static int unsigned amount_5 	=	vm_parameter::DENOMINATION_AMOUNT_5;
+	static int unsigned amount_2	=	vm_parameter::DENOMINATION_AMOUNT_2;
+	static int unsigned amount_1 	=	vm_parameter::DENOMINATION_AMOUNT_1;
+	static int unsigned amount_0_50	=	vm_parameter::DENOMINATION_AMOUNT0_50;
+	static int unsigned amount_0_25	=	vm_parameter::DENOMINATION_AMOUNT0_25;
+	static int unsigned amount_0_10	=	vm_parameter::DENOMINATION_AMOUNT0_10;
+	static int unsigned amount_0_05	=	vm_parameter::DENOMINATION_AMOUNT0_05;
+	static int unsigned amount_0_02	=	vm_parameter::DENOMINATION_AMOUNT0_02;
+	static int unsigned amount_0_01	=	vm_parameter::DENOMINATION_AMOUNT0_01;
+
+	static bit unsigned	no_change;
+
+endclass : common
+
+`endif //__COMMON__
 
 `ifndef __VM_UVC_DEVICE__
 `define __VM_UVC_DEVICE__
+
+`include "./simulation/if.svh"
 
 class base_vm_transaction;
 
@@ -43,6 +69,7 @@ class vm_drv_transaction extends base_vm_transaction;
 	rand logic [ 3:0] 	product_code;
 
 	integer 			product_price;
+	integer 			money;
 	integer 		  	wait_before_trn_ends; 	
 	integer 			seq_limit;
 
@@ -127,8 +154,117 @@ class vm_drv_transaction extends base_vm_transaction;
 			endcase
 			it++;
 		end
-		seq_limit = it;
+		seq_limit 	= 	it;
+		money 		=	sum;
 	endtask : seq_limit_calc
+
+	task wait_change_update();
+		int 	change;
+		wait_before_trn_ends 	= 	1;
+		change 					=	money -	product_price;
+		common::no_change = 1'b0;
+		while(change > 0) 
+		begin
+			case(1'b1)
+				common::amount_500!=0 & ((change - vm_parameter::DENOMINATION_VALUE_500)>=0): 
+					begin
+						change -= vm_parameter::DENOMINATION_VALUE_500;
+						common::amount_500--;
+						wait_before_trn_ends++;
+					end
+				common::amount_200!=0 & ((change -vm_parameter:: DENOMINATION_VALUE_200)>=0): 
+					begin
+						change -= vm_parameter::DENOMINATION_VALUE_200;
+						common::amount_200--;
+						wait_before_trn_ends++;
+					end
+				common::amount_100!=0 & ((change - vm_parameter::DENOMINATION_VALUE_100)>=0): 
+					begin
+						change -= vm_parameter::DENOMINATION_VALUE_100;
+						common::amount_100--;
+						wait_before_trn_ends++;
+					end
+				common::amount_50!=0 & ((change - vm_parameter::DENOMINATION_VALUE_50)>=0): 
+					begin
+						change -= vm_parameter::DENOMINATION_VALUE_50;
+						common::amount_50--;
+						wait_before_trn_ends++;
+					end
+				common::amount_20!=0 & ((change - vm_parameter::DENOMINATION_VALUE_20)>=0): 
+					begin
+						change -= vm_parameter::DENOMINATION_VALUE_20;
+						common::amount_20--;
+						wait_before_trn_ends++;
+					end
+				common::amount_10!=0 & ((change - vm_parameter::DENOMINATION_VALUE_10)>=0): 
+					begin
+						change -= vm_parameter::DENOMINATION_VALUE_10;
+						common::amount_10--;
+						wait_before_trn_ends++;
+					end
+				common::amount_5!=0 & ((change - vm_parameter::DENOMINATION_VALUE_5)>=0): 
+					begin
+						change -= vm_parameter::DENOMINATION_VALUE_5;
+						common::amount_5--;	
+						wait_before_trn_ends++;		
+					end
+				common::amount_2!=0 & ((change - vm_parameter::DENOMINATION_VALUE_2)>=0): 
+					begin
+						change -= vm_parameter::DENOMINATION_VALUE_2;
+						common::amount_2--;	
+						wait_before_trn_ends++;						
+					end
+				common::amount_1!=0 & ((change - vm_parameter::DENOMINATION_VALUE_1)>=0): 
+					begin
+						change -= vm_parameter::DENOMINATION_VALUE_1;
+						common::amount_1--;	
+						wait_before_trn_ends++;						
+					end
+				common::amount_0_50!=0 & ((change - vm_parameter::DENOMINATION_VALUE_0_50)>=0): 
+					begin
+						change -= vm_parameter::DENOMINATION_VALUE_0_50;
+						common::amount_0_50--;
+						wait_before_trn_ends++;
+					end
+				common::amount_0_25!=0 & ((change - vm_parameter::DENOMINATION_VALUE_0_25)>=0): 
+					begin
+						change -= vm_parameter::DENOMINATION_VALUE_0_25;
+						common::amount_0_25--;
+						wait_before_trn_ends++;
+					end
+				common::amount_0_10!=0 & ((change - vm_parameter::DENOMINATION_VALUE_0_10)>=0): 
+					begin
+						change -= vm_parameter::DENOMINATION_VALUE_0_10;
+						common::amount_0_10--;
+						wait_before_trn_ends++;
+					end
+				common::amount_0_05!=0 & ((change - vm_parameter::DENOMINATION_VALUE_0_05)>=0): 
+					begin
+						change -= vm_parameter::DENOMINATION_VALUE_0_05;
+						common::amount_0_05--;
+						wait_before_trn_ends++;
+					end
+				common::amount_0_02!=0 & ((change - vm_parameter::DENOMINATION_VALUE_0_02)>=0): 
+					begin
+						change -= vm_parameter::DENOMINATION_VALUE_0_02;
+						common::amount_0_02--;
+						wait_before_trn_ends++;
+					end
+				common::amount_0_01!=0 & ((change - vm_parameter::DENOMINATION_VALUE_0_01)>=0): 
+					begin
+						change -= vm_parameter::DENOMINATION_VALUE_0_01;
+						common::amount_0_01--;
+						wait_before_trn_ends++;
+					end
+				default: 
+					begin
+						common::no_change = 1'b1;
+						wait_before_trn_ends++;
+					end
+			endcase
+		end
+
+	endtask : wait_change_update
 
 endclass : vm_drv_transaction
 
@@ -218,7 +354,7 @@ class vm_driver;
 			if($cast(vm_trn, base_trn)) begin
 				drive_trn(vm_trn);
 				trn_done.put();
-				$display("[%t][VM_DRIVER][INFO] Transaction sent by Driver",$time());
+				// $display("[%t][VM_DRIVER][INFO] Transaction sent by Driver",$time());
 			end
 			else begin
 				$display("[%t][VM_DRIVER][ERR] Unknown transaction in Driver. TypeName: %s",$time, $typename(vm_trn));
@@ -250,8 +386,8 @@ class vm_driver;
 		@(negedge dut_if.clk);
 		drv_port.product_ready 	= 1'b0;
 
-		// repeat(vm_trn.wait_before_trn_ends)!!!!!!!!!!!!
-		repeat(100)
+		repeat(vm_trn.wait_before_trn_ends)
+		// repeat(100)
 			@(negedge dut_if.clk);
 		
 	endtask : drive_trn
@@ -423,16 +559,17 @@ class vm_transactor;
 
 	task vm_random_trn();
 		
-		$display("[%t][VM_TRN][INFO] VM Random Transaction",$time());
+		$display("\n[%t][VM_TRN][INFO] VM Random Transaction",$time());
 
 		trn = new();
 
 		if (trn.randomize() == 1) begin
 			trn.seq_limit_calc();
+			trn.wait_change_update();
 			trn_mlb.put(trn); 	// send transaction to driver
 			trn_done.get();		// wait until driver done
 
-			$write("[%t][VM_TRN][INFO] VM Transaction has been sent. Product_code[%d]. Money sequence: ", $time(), trn.product_code);
+			$write("[%t][VM_TRN][INFO] VM Transaction has been sent. Product_code[%d]", $time(), trn.product_code);
 			// foreach (trn.money_sequence[i]) begin
 			// 	$write("%d ", trn.money_sequence[i]);
 			// end
@@ -444,7 +581,7 @@ class vm_transactor;
 
 	task vm_non_randon_trn(	int seq[],	logic [3:0] code);
 
-		$display("[%t][VM_TRN][INFO] VM Non Random Transaction",$time());
+		$display("\n[%t][VM_TRN][INFO] VM Non Random Transaction",$time());
 
 		trn = new();
 
@@ -455,10 +592,11 @@ class vm_transactor;
 			this.product_code 			== 	code;
 		});
 		trn.seq_limit_calc();
+		trn.wait_change_update();
 		trn_mlb.put(trn); 	// send transaction to driver
 		trn_done.get();		// wait until driver done
 
-		$write("[%t][VM_TRN][INFO] VM Transaction has been sent. Product_code[%d]. Money sequence: ", $time(), trn.product_code);
+		$write("[%t][VM_TRN][INFO] VM Transaction has been sent. Product_code[%d]", $time(), trn.product_code);
 		// foreach (trn.money_sequence[i]) begin
 		// 	$write("%d ", trn.money_sequence[i]);
 		// end

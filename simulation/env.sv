@@ -1,3 +1,11 @@
+/*
+ *	File: env.sv 
+ *
+ *	This file contains simulation environment
+ *
+ *
+*/
+
 
 `include "./simulation/scrbrd.svh"
 `include "./simulation/sequencer.svh"

@@ -5,3 +5,5 @@ transcript
 dump.vcd
 vsim.wlf
 script.ps1
+vm_verification.sublime-project
+vm_verification.sublime-workspace

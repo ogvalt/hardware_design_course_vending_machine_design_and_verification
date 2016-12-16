@@ -1,3 +1,10 @@
+/*
+ *	File: vending_machine.sv
+ *	
+ *	This file contains design
+ *
+*/
+
 module vending_machine (
 							i_clk,
 							i_rst_n,
