@@ -9,6 +9,6 @@ vlog -work work -novopt -sv simulation/testbench.sv
 vlog -work work -novopt -sv simulation/vm_parameter.svh
 vlog -work work -novopt -sv simulation/vm_uvc.svh
 vsim -novopt work.tb
-#run 100 us
+#run 10 us
 run -all
 quit

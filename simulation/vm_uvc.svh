@@ -163,6 +163,28 @@ class vm_drv_transaction extends base_vm_transaction;
 		wait_before_trn_ends 	= 	1;
 		change 					=	money -	product_price;
 		common::no_change = 1'b0;
+
+		for(int i = 0; i < seq_limit; i++) 
+		begin
+			case(money_sequence[i])
+				vm_parameter::DENOMINATION_CODE_500	: 	common::amount_500++;
+			 	vm_parameter::DENOMINATION_CODE_200	:	common::amount_200++;
+			   	vm_parameter::DENOMINATION_CODE_100	:	common::amount_100++;
+			   	vm_parameter::DENOMINATION_CODE_50  :	common::amount_50++;
+			   	vm_parameter::DENOMINATION_CODE_20  :	common::amount_20++;
+			   	vm_parameter::DENOMINATION_CODE_10  :	common::amount_10++;
+			   	vm_parameter::DENOMINATION_CODE_5   :	common::amount_5++;
+			   	vm_parameter::DENOMINATION_CODE_2   :	common::amount_2++;
+			   	vm_parameter::DENOMINATION_CODE_1   :	common::amount_1++;
+			   	vm_parameter::DENOMINATION_CODE0_50 :	common::amount_0_50++;
+			   	vm_parameter::DENOMINATION_CODE0_25 :	common::amount_0_25++;
+			   	vm_parameter::DENOMINATION_CODE0_10 :	common::amount_0_10++;
+			   	vm_parameter::DENOMINATION_CODE0_05 :	common::amount_0_05++;
+			   	vm_parameter::DENOMINATION_CODE0_02 :	common::amount_0_02++;
+			   	vm_parameter::DENOMINATION_CODE0_01 :	common::amount_0_01++;
+			endcase // money_sequence[i]
+		end
+
 		while(change > 0) 
 		begin
 			case(1'b1)
@@ -260,6 +282,7 @@ class vm_drv_transaction extends base_vm_transaction;
 					begin
 						common::no_change = 1'b1;
 						wait_before_trn_ends++;
+						break;
 					end
 			endcase
 		end
