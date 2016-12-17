@@ -30,7 +30,8 @@ class common;
 	static int unsigned amount_0_02	=	vm_parameter::DENOMINATION_AMOUNT0_02;
 	static int unsigned amount_0_01	=	vm_parameter::DENOMINATION_AMOUNT0_01;
 
-	static bit unsigned	no_change;
+	static int unsigned exp_change;
+	// static bit unsigned	no_change;
 
 endclass : common
 
@@ -127,7 +128,7 @@ class vm_drv_transaction extends base_vm_transaction;
 		endcase
 
 		if (sum < product_price)
-			money_sequence = {money_sequence,1};
+			money_sequence = {money_sequence,1,1};
 	
 	endfunction : post_randomize
 
@@ -162,7 +163,7 @@ class vm_drv_transaction extends base_vm_transaction;
 		int 	change;
 		wait_before_trn_ends 	= 	1;
 		change 					=	money -	product_price;
-		common::no_change = 1'b0;
+		common::exp_change = 0;
 
 		for(int i = 0; i < seq_limit; i++) 
 		begin
@@ -280,12 +281,12 @@ class vm_drv_transaction extends base_vm_transaction;
 					end
 				default: 
 					begin
-						common::no_change = 1'b1;
 						wait_before_trn_ends++;
 						break;
 					end
 			endcase
 		end
+		common::exp_change = money - product_price - change;
 
 	endtask : wait_change_update
 
@@ -296,7 +297,7 @@ class vm_mon_transaction extends base_vm_transaction;
 	int 			money;
 	integer			money_sequence[];
 	logic 	[ 3:0] 	product_code;
-	logic 			no_change;
+	// logic 			no_change;
 	time 			at_time;
 
 	function new();
@@ -526,15 +527,15 @@ class vm_out_monitor;
 			@(posedge mon_port.change_valid);
 			@(negedge dut_if.clk);
 
-			if (mon_port.no_change === 1'b1) begin
-				vm_trn.no_change 	= 1'b1;
-			end else begin
+			// if (mon_port.no_change === 1'b1) begin
+			// 	vm_trn.no_change 	= 1'b1;
+			// end else begin
 				while(mon_port.change_valid===1'b1 & mon_port.no_change!==1'b1) begin
 					vm_trn.money_sequence = {vm_trn.money_sequence, mon_port.change_denomination_code};
 					@(negedge dut_if.clk);
 				end
-				vm_trn.no_change 	= mon_port.no_change ? 1'b1 : 1'b0;
-			end
+			// 	vm_trn.no_change 	= mon_port.no_change ? 1'b1 : 1'b0;
+			// end
 			vm_trn.at_time 		= $time();
 
 			vm_trn.sequence_to_change();

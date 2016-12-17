@@ -114,7 +114,7 @@ class sequencer;
 		repeat (run_count) begin
 			randsequence(main)
 				main: rst_init test;
-				test: repeat(8) product_without_change repeat(1000) random_product;
+				test: repeat(8) product_without_change repeat(100000) random_product;
 				rst_init: {};
 				product_without_change: {
 					send_product_without_change(it);

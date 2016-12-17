@@ -106,10 +106,9 @@ class vm_checker;
 							default : product_price = 0;
 						endcase
 
-						if (vm_in_trn.money - product_price != vm_out_trn.money) 
+						if (common::exp_change != vm_out_trn.money) 
 						begin
-							real_change = vm_in_trn.money - product_price;
-							$display("[%t][CHKR][ERR] Change does not match: Exp[%2d], Got[%2d]",$time(), real_change, vm_out_trn.money);
+							$display("[%t][CHKR][ERR] Change does not match: Exp[%2d], Got[%2d]",$time(), common::exp_change, vm_out_trn.money);
 							checkr_comm::err_cnt++;
 							checkr_comm::err_change++;
 						end else 
@@ -118,6 +117,7 @@ class vm_checker;
 							checkr_comm::pass_cnt++;
 							checkr_comm::pass_change++;
 						end
+
 						$display("[%t][CHCK][INFO] Product match. OK",$time());
 						checkr_comm::pass_cnt++;
 						checkr_comm::pass_product++;

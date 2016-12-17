@@ -397,10 +397,8 @@ always @(posedge i_clk or negedge i_rst_n) begin : fsm_output_logic_block
 							end
 						default: 
 							begin
-								// if(change!=0) begin
-									o_change_valid 	<= 	1;
-									o_no_change 	<=	1;
-								// end
+								o_change_valid 	<= 	1;
+								o_no_change 	<=	1;
 							end
 					endcase // 1'b1
 				end
@@ -430,7 +428,7 @@ always @(*) begin : fsm_state_change_logic_block
 				next_state = GIVE_PRODUCT;
 			end 
 		GIVE_CHANGE:
-			if(change == 0 || o_no_change)
+			if(change == 0)
 				next_state = CHOOSE_PRODUCT;
 			else
 				next_state = GIVE_CHANGE;
