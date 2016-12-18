@@ -72,7 +72,6 @@ class scoreboard;
     	}
 
     	coverpoint vm_out_if.change_denomination_code iff(dut_if.rst){ 
-  			// bins mn_one 	= {1};
     		bins mn_two 	= {2};
     		bins mn_three 	= {3};
     		bins mn_four 	= {4};
