@@ -8,6 +8,7 @@
 `include "./simulation/if.svh"
 `include "./simulation/env.sv"
 `include "./simulation/dut_top.sv"
+`include "./simulation/assertions.sv"
 
 module tb;
 
@@ -17,6 +18,7 @@ module tb;
 
 	environment 		env(dut_if,vm_in_if,vm_out_if);
 	dut_top				dut_top(dut_if,vm_in_if,vm_out_if);
+	assertions			ass(dut_if,vm_in_if,vm_out_if);
 
 	initial begin
 		$dumpfile("dump.vcd");
