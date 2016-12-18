@@ -31,7 +31,6 @@ class common;
 	static int unsigned amount_0_01	=	vm_parameter::DENOMINATION_AMOUNT0_01;
 
 	static int unsigned exp_change;
-	// static bit unsigned	no_change;
 
 endclass : common
 
@@ -297,7 +296,6 @@ class vm_mon_transaction extends base_vm_transaction;
 	int 			money;
 	integer			money_sequence[];
 	logic 	[ 3:0] 	product_code;
-	// logic 			no_change;
 	time 			at_time;
 
 	function new();
@@ -377,15 +375,12 @@ class vm_driver;
 
 			if($cast(vm_trn, base_trn)) begin
 				drive_trn(vm_trn);
-				trn_done.put();
-				// $display("[%t][VM_DRIVER][INFO] Transaction sent by Driver",$time());
 			end
 			else begin
 				$display("[%t][VM_DRIVER][ERR] Unknown transaction in Driver. TypeName: %s",$time, $typename(vm_trn));
 				$finish;
 			end
-
-			// trn_done.put();
+			trn_done.put();
 		end
 	endtask : run_driver
 
@@ -411,7 +406,6 @@ class vm_driver;
 		drv_port.product_ready 	= 1'b0;
 
 		repeat(vm_trn.wait_before_trn_ends)
-		// repeat(100)
 			@(negedge dut_if.clk);
 		
 	endtask : drive_trn
@@ -527,15 +521,11 @@ class vm_out_monitor;
 			@(posedge mon_port.change_valid);
 			@(negedge dut_if.clk);
 
-			// if (mon_port.no_change === 1'b1) begin
-			// 	vm_trn.no_change 	= 1'b1;
-			// end else begin
-				while(mon_port.change_valid===1'b1 & mon_port.no_change!==1'b1) begin
-					vm_trn.money_sequence = {vm_trn.money_sequence, mon_port.change_denomination_code};
-					@(negedge dut_if.clk);
-				end
-			// 	vm_trn.no_change 	= mon_port.no_change ? 1'b1 : 1'b0;
-			// end
+			while(mon_port.change_valid===1'b1 & mon_port.no_change!==1'b1) begin
+				vm_trn.money_sequence = {vm_trn.money_sequence, mon_port.change_denomination_code};
+				@(negedge dut_if.clk);
+			end
+		
 			vm_trn.at_time 		= $time();
 
 			vm_trn.sequence_to_change();
@@ -593,11 +583,7 @@ class vm_transactor;
 			trn_mlb.put(trn); 	// send transaction to driver
 			trn_done.get();		// wait until driver done
 
-			$write("[%t][VM_TRN][INFO] VM Transaction has been sent. Product_code[%d]", $time(), trn.product_code);
-			// foreach (trn.money_sequence[i]) begin
-			// 	$write("%d ", trn.money_sequence[i]);
-			// end
-			$write("\n");
+			$write("[%t][VM_TRN][INFO] VM Transaction has been sent. Product_code[%d]\n", $time(), trn.product_code);
 		end else begin
 			$display("[%t][VM_TRN][ERR] Something go wrong with randomize()",$time());
 		end
@@ -620,11 +606,7 @@ class vm_transactor;
 		trn_mlb.put(trn); 	// send transaction to driver
 		trn_done.get();		// wait until driver done
 
-		$write("[%t][VM_TRN][INFO] VM Transaction has been sent. Product_code[%d]", $time(), trn.product_code);
-		// foreach (trn.money_sequence[i]) begin
-		// 	$write("%d ", trn.money_sequence[i]);
-		// end
-		$write("\n");
+		$write("[%t][VM_TRN][INFO] VM Transaction has been sent. Product_code[%d]\n", $time(), trn.product_code);
 	endtask : vm_non_randon_trn
 
 

@@ -182,100 +182,100 @@ always @(posedge i_clk or negedge i_rst_n) begin : fsm_output_logic_block
 		case(state)
 			CHOOSE_PRODUCT:
 				begin : choose_product_state_operation
-					//if(i_buy == 1'b1) begin
-						product_code <= i_product_code;
-						case(i_product_code)
-							ESPRESSO: 	product_price <= PRICE_PROD_ONE;
-				   			AMERICANO:	product_price <= PRICE_PROD_TWO;
-				   			LATTE:		product_price <= PRICE_PROD_THREE;
-				   			TEA:		product_price <= PRICE_PROD_FOUR;
-				   			MILK:		product_price <= PRICE_PROD_FIVE;
-				   			CHOCOLATE:	product_price <= PRICE_PROD_SIX;
-				   			NUTS:		product_price <= PRICE_PROD_SEVEN;
-				   			SNICKERS:	product_price <= PRICE_PROD_EIGHT; 	
-			   			endcase // i_product_code
-			   		//end
+					product_code <= i_product_code;
+					case(i_product_code)
+						ESPRESSO: 	product_price <= PRICE_PROD_ONE;
+			   			AMERICANO:	product_price <= PRICE_PROD_TWO;
+			   			LATTE:		product_price <= PRICE_PROD_THREE;
+			   			TEA:		product_price <= PRICE_PROD_FOUR;
+			   			MILK:		product_price <= PRICE_PROD_FIVE;
+			   			CHOCOLATE:	product_price <= PRICE_PROD_SIX;
+			   			NUTS:		product_price <= PRICE_PROD_SEVEN;
+			   			SNICKERS:	product_price <= PRICE_PROD_EIGHT; 	
+		   			endcase // i_product_code
 				end
 			ENTER_MONEY:
 				begin : enter_money_state_operation
-					if(i_money_valid) begin
-						case(i_money)
-						   DENOMINATION_CODE_500: 
-						   	begin 
-						   		wallet <= wallet + DENOMINATION_VALUE_500 ;
-						   		denom_amount_500 	<= 	denom_amount_500 	+	1;
-						   	end
-			   			   DENOMINATION_CODE_200: 
-			   			   	begin 
-			   			   		wallet <= wallet + DENOMINATION_VALUE_200 ;
-			   			   		denom_amount_200 	<= 	denom_amount_200 	+	1;
-			   			   	end
-						   DENOMINATION_CODE_100: 
-						   	begin
-						   		wallet <= wallet + DENOMINATION_VALUE_100 ;
-						   		denom_amount_100 	<= 	denom_amount_100 	+	1;
-						   	end
-						   DENOMINATION_CODE_50 : 
-						   	begin 
-						   		wallet <= wallet + DENOMINATION_VALUE_50  ;						   
-						   		denom_amount_50 	<= 	denom_amount_50 	+	1;
-						   	end
-						   DENOMINATION_CODE_20 : 
-						   	begin 
-						   		wallet <= wallet + DENOMINATION_VALUE_20  ;						   
-						   		denom_amount_20 	<= 	denom_amount_20 	+	1;
-						   	end
-						   DENOMINATION_CODE_10 : 
-						   	begin 
-						   		wallet <= wallet + DENOMINATION_VALUE_10  ;						   
-						   		denom_amount_10 	<= 	denom_amount_10 	+	1;
-						   	end
-						   DENOMINATION_CODE_5  : 
-						   	begin 
-						   		wallet <= wallet + DENOMINATION_VALUE_5   ;					   
-						   		denom_amount_5 	<= 	denom_amount_5 	+	1;
-						   	end
-						   DENOMINATION_CODE_2  : 
-						   	begin 
-						   		wallet <= wallet + DENOMINATION_VALUE_2   ;					   
-						   		denom_amount_2 	<= 	denom_amount_2 	+	1;
-						   	end
-						   DENOMINATION_CODE_1  : 
-						   	begin 
-						   		wallet <= wallet + DENOMINATION_VALUE_1   ;					   
-						   		denom_amount_1 	<= 	denom_amount_1 	+	1;
-						   	end
-						   DENOMINATION_CODE0_50: 
-						   	begin 
-						   		wallet <= wallet + DENOMINATION_VALUE_0_50;						   
-						   		denom_amount0_50 	<= 	denom_amount0_50 	+	1;
-						   	end
-						   DENOMINATION_CODE0_25: 
-						   	begin 
-						   		wallet <= wallet + DENOMINATION_VALUE_0_25;					   
-						   		denom_amount0_25 	<= 	denom_amount0_25 	+	1;
-						   	end
-						   DENOMINATION_CODE0_10: 
-						   	begin 
-						   		wallet <= wallet + DENOMINATION_VALUE_0_10;					   
-						   		denom_amount0_10 	<= 	denom_amount0_10 	+	1;
-						   	end
-						   DENOMINATION_CODE0_05: 
-						   	begin 
-						   		wallet <= wallet + DENOMINATION_VALUE_0_05;				   
-						   		denom_amount0_05 	<= 	denom_amount0_05 	+	1;
-						   	end
-						   DENOMINATION_CODE0_02: 
-						   	begin 
-						   		wallet <= wallet + DENOMINATION_VALUE_0_02;				   
-						   		denom_amount0_02 	<= 	denom_amount0_02 	+	1;
-						   	end
-						   DENOMINATION_CODE0_01: 
-						   	begin 
-						   		wallet <= wallet + DENOMINATION_VALUE_0_01;		
-						   		denom_amount0_01 	<= 	denom_amount0_01 	+	1;
-						   	end
-						endcase // i_money
+					if (wallet < product_price) begin
+						if(i_money_valid) begin
+							case(i_money)
+							   DENOMINATION_CODE_500: 
+							   	begin 
+							   		wallet <= wallet + DENOMINATION_VALUE_500 ;
+							   		denom_amount_500 	<= 	denom_amount_500 	+	1;
+							   	end
+				   			   DENOMINATION_CODE_200: 
+				   			   	begin 
+				   			   		wallet <= wallet + DENOMINATION_VALUE_200 ;
+				   			   		denom_amount_200 	<= 	denom_amount_200 	+	1;
+				   			   	end
+							   DENOMINATION_CODE_100: 
+							   	begin
+							   		wallet <= wallet + DENOMINATION_VALUE_100 ;
+							   		denom_amount_100 	<= 	denom_amount_100 	+	1;
+							   	end
+							   DENOMINATION_CODE_50 : 
+							   	begin 
+							   		wallet <= wallet + DENOMINATION_VALUE_50  ;						   
+							   		denom_amount_50 	<= 	denom_amount_50 	+	1;
+							   	end
+							   DENOMINATION_CODE_20 : 
+							   	begin 
+							   		wallet <= wallet + DENOMINATION_VALUE_20  ;						   
+							   		denom_amount_20 	<= 	denom_amount_20 	+	1;
+							   	end
+							   DENOMINATION_CODE_10 : 
+							   	begin 
+							   		wallet <= wallet + DENOMINATION_VALUE_10  ;						   
+							   		denom_amount_10 	<= 	denom_amount_10 	+	1;
+							   	end
+							   DENOMINATION_CODE_5  : 
+							   	begin 
+							   		wallet <= wallet + DENOMINATION_VALUE_5   ;					   
+							   		denom_amount_5 	<= 	denom_amount_5 	+	1;
+							   	end
+							   DENOMINATION_CODE_2  : 
+							   	begin 
+							   		wallet <= wallet + DENOMINATION_VALUE_2   ;					   
+							   		denom_amount_2 	<= 	denom_amount_2 	+	1;
+							   	end
+							   DENOMINATION_CODE_1  : 
+							   	begin 
+							   		wallet <= wallet + DENOMINATION_VALUE_1   ;					   
+							   		denom_amount_1 	<= 	denom_amount_1 	+	1;
+							   	end
+							   DENOMINATION_CODE0_50: 
+							   	begin 
+							   		wallet <= wallet + DENOMINATION_VALUE_0_50;						   
+							   		denom_amount0_50 	<= 	denom_amount0_50 	+	1;
+							   	end
+							   DENOMINATION_CODE0_25: 
+							   	begin 
+							   		wallet <= wallet + DENOMINATION_VALUE_0_25;					   
+							   		denom_amount0_25 	<= 	denom_amount0_25 	+	1;
+							   	end
+							   DENOMINATION_CODE0_10: 
+							   	begin 
+							   		wallet <= wallet + DENOMINATION_VALUE_0_10;					   
+							   		denom_amount0_10 	<= 	denom_amount0_10 	+	1;
+							   	end
+							   DENOMINATION_CODE0_05: 
+							   	begin 
+							   		wallet <= wallet + DENOMINATION_VALUE_0_05;				   
+							   		denom_amount0_05 	<= 	denom_amount0_05 	+	1;
+							   	end
+							   DENOMINATION_CODE0_02: 
+							   	begin 
+							   		wallet <= wallet + DENOMINATION_VALUE_0_02;				   
+							   		denom_amount0_02 	<= 	denom_amount0_02 	+	1;
+							   	end
+							   DENOMINATION_CODE0_01: 
+							   	begin 
+							   		wallet <= wallet + DENOMINATION_VALUE_0_01;		
+							   		denom_amount0_01 	<= 	denom_amount0_01 	+	1;
+							   	end
+							endcase // i_money
+						end
 					end
  				end
 			GIVE_PRODUCT:
@@ -290,13 +290,6 @@ always @(posedge i_clk or negedge i_rst_n) begin : fsm_output_logic_block
 					o_busy <= 1;
 					wallet <= 0;
 					case(1'b1)
-						((change - DENOMINATION_VALUE_500)>=0) & denom_amount_500!=0: 
-							begin
-								o_change_denomination_code <= DENOMINATION_CODE_500;
-								o_change_valid <= 1;
-								change <= change - DENOMINATION_VALUE_500;
-								denom_amount_500 <= denom_amount_500 - 1;
-							end
 						denom_amount_200!=0 & ((change - DENOMINATION_VALUE_200)>=0): 
 							begin
 								o_change_denomination_code <= DENOMINATION_CODE_200;
