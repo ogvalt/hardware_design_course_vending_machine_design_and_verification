@@ -421,7 +421,8 @@ always @(*) begin : fsm_state_change_logic_block
 				next_state = GIVE_PRODUCT;
 			end 
 		GIVE_CHANGE:
-			if(change == 0)
+			if(o_no_change | change == 0
+				)
 				next_state = CHOOSE_PRODUCT;
 			else
 				next_state = GIVE_CHANGE;
