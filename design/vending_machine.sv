@@ -113,7 +113,6 @@ output 	reg 		o_no_change; 				// there is no change in VM
 reg 		[1:0]		state, next_state;
 
 reg 		[20:0]		wallet; 			// money amount that customer input into VM
-reg 		[3:0] 		product_code;
 reg			[20:0] 		product_price;		// price of product
 reg signed 	[20:0] 		change;				// wallet - price 
 
@@ -172,7 +171,6 @@ always @(posedge i_clk or negedge i_rst_n) begin : fsm_output_logic_block
 
 	end else begin : fsm_output_logic_operation
 
-		o_product_code 				<= 0;
 		o_product_valid 			<= 0;
 		o_busy 						<= 0;
 		o_change_denomination_code	<= 0;
@@ -182,7 +180,7 @@ always @(posedge i_clk or negedge i_rst_n) begin : fsm_output_logic_block
 		case(state)
 			CHOOSE_PRODUCT:
 				begin : choose_product_state_operation
-					product_code <= i_product_code;
+					o_product_code <= i_product_code;
 					case(i_product_code)
 						ESPRESSO: 	product_price <= PRICE_PROD_ONE;
 			   			AMERICANO:	product_price <= PRICE_PROD_TWO;
@@ -281,7 +279,6 @@ always @(posedge i_clk or negedge i_rst_n) begin : fsm_output_logic_block
 			GIVE_PRODUCT:
 				begin : give_product_state_operation
 					change <= wallet - product_price;
-					o_product_code 	<= product_code;
 					o_product_valid	<= 1;
 					o_busy 			<= 1;
 				end
@@ -421,8 +418,7 @@ always @(*) begin : fsm_state_change_logic_block
 				next_state = GIVE_PRODUCT;
 			end 
 		GIVE_CHANGE:
-			if(o_no_change | change == 0
-				)
+			if(o_no_change | change == 0)
 				next_state = CHOOSE_PRODUCT;
 			else
 				next_state = GIVE_CHANGE;
