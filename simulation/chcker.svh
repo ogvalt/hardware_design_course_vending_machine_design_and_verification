@@ -79,8 +79,6 @@ class vm_checker;
 	endfunction : new
 
 	task run_check();
-		int 	product_price;
-		int 	real_change;
 		forever 
 		begin
 			vm_in_mlb.get(base_in_trn);
@@ -94,18 +92,6 @@ class vm_checker;
 
 					if(vm_in_trn.product_code == vm_out_trn.product_code) 
 					begin
-						case (vm_in_trn.product_code)
-							1:	product_price = vm_parameter::PRICE_PROD_ONE;
-							2:	product_price = vm_parameter::PRICE_PROD_TWO;	   
-							3:	product_price = vm_parameter::PRICE_PROD_THREE;
-							4:	product_price = vm_parameter::PRICE_PROD_FOUR; 
-							5:	product_price = vm_parameter::PRICE_PROD_FIVE; 
-							6:	product_price = vm_parameter::PRICE_PROD_SIX;  
-							7:	product_price = vm_parameter::PRICE_PROD_SEVEN;
-							8:	product_price = vm_parameter::PRICE_PROD_EIGHT;
-							default : product_price = 0;
-						endcase
-
 						if (common::exp_change != vm_out_trn.money) 
 						begin
 							$display("[%t][CHKR][ERR] Change does not match: Exp[%2d], Got[%2d]",$time(), common::exp_change, vm_out_trn.money);
